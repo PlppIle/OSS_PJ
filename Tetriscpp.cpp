@@ -12,6 +12,13 @@
 #define GBOARD_ORIGIN_Y 2
 #define GBOARD_ORIGIN_X 4
 
+/* 키보드 키값 정의 */
+#define LEFT 75
+#define RIGHT 77
+#define UP 72
+#define DOWN 80
+#define SPACE 32
+
 // 게임보드
 int gameBoardInfo[GBOARD_HEIGHT + 1][GBOARD_WIDTH + 2];
 
@@ -77,6 +84,74 @@ void deleteBlock(char blockInfo[4][4])
 		// 처음 커서 위치로 복귀
 	}
 }
+
+// 블록을 왼쪽으로 움직임
+// 기호는 문자 2칸 차지 +-2
+void ShiftLeft()
+{
+	deleteBlock(blockModel[block_id]);
+	curPosX -= 2;
+	SetCurrentCursorPos(curPosX, curPosY);
+	showBlock(blockModel[block_id]);
+}
+
+// 블록을 오른쪽으로 움직임
+void ShiftRight()
+{
+	deleteBlock(blockModel[block_id]);
+	curPosX += 2;
+	SetCurrentCursorPos(curPosX, curPosY);
+	showBlock(blockModel[block_id]);
+}
+
+
+// 일정 시간마다 블록으로 아래쪽으로 내림
+void BlockDown()
+{
+	deleteBlock(blockModel[block_id]);
+	curPosY += 1;
+	SetCurrentCursorPos(curPosX, curPosY);
+	showBlock(blockModel[block_id]);
+}
+
+// 블록을 오른쪽으로 움직임
+void ShiftRight()
+{
+	if (!DetectCollision(curPosX + 2, curPosY, blockModel[block_id]))
+		return;
+
+	deleteBlock(blockModel[block_id]);
+	curPosX += 2;
+	SetCurrentCursorPos(curPosX, curPosY);
+	showBlock(blockModel[block_id]);
+}
+
+// 키 입력을 받음
+void ProcessKeyInput()
+{
+
+	for (int i = 0; i < 20; i++)
+	{
+		int key;
+		if (_kbhit() != 0)
+		{
+			key = _getch();
+
+			switch (key)
+			{
+			case LEFT:
+				ShiftLeft();
+				break;
+			case RIGHT:
+				ShiftRight();
+				break;
+			}
+		}
+
+		Sleep(1000);
+	}
+}
+
 
 // main
 int main()
