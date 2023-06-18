@@ -23,6 +23,7 @@
 int gameBoardInfo[GBOARD_HEIGHT + 1][GBOARD_WIDTH + 2];
 int curPosX, curPosY;	// 현재 커서 위치 저장 변수
 int block_id;			// 내려올 블록의 id
+int score = 0;			// 점수 추가
 int speed = 1;			// block 속도 조정
 int score = 0;			// 점수 추가
 
@@ -330,6 +331,74 @@ void ProcessKeyInput()
 
 		Sleep(speed);
 	}
+}
+
+// 게임보드에 블록 정보를 저장
+void AddBlockToBoard()
+{
+	// 4*4 영역을 돌면서 게임보드의 0인 부분을 1로 변경하여 블록 정보 저장
+	int x, y, arrCurX, arrCurY;
+	for (y = 0; y < 4; y++)
+	{
+		for (x = 0; x < 4; x++)
+		{
+			arrCurX = (curPosX - GBOARD_ORIGIN_X) / 2;
+			arrCurY = curPosY - GBOARD_ORIGIN_Y;
+
+			if (blockModel[block_id][y][x] == 1)
+				gameBoardInfo[arrCurY + y][arrCurX + x] = 1;
+		}
+	}
+}
+
+// 추가된 블록 정보를 포함하여 게임보드를 다시 그림
+void RedrawBlocks()
+{
+	int x, y;
+	int cursX, cursY;
+
+	for (y = 0; y < GBOARD_HEIGHT; y++)
+	{
+		for (x = 1; x < GBOARD_WIDTH + 1; x++)
+		{
+			cursX = x * 2 + GBOARD_ORIGIN_X;
+			cursY = y + GBOARD_ORIGIN_Y;
+			SetCurrentCursorPos(cursX, cursY);
+			if (gameBoardInfo[y][x] == 1)
+				printf("■");
+			else
+				printf("  ");
+		}
+	}
+}
+
+// 한 라인이 모두 블록으로 가득 찼을 경우 해당 라인 제거
+void RemoveFillUpLine()
+{
+	int y, x, line;
+
+	// 게임보드 전체를 돔
+	for (y = GBOARD_HEIGHT - 1; y > 0; y--)
+	{
+		for (x = 1; x < GBOARD_WIDTH + 1; x++)
+		{
+			if (gameBoardInfo[y][x] != 1)
+				break;
+		}
+
+		// 전체를 돌다가 어느 한 줄이 처음부터 마지막까지 1일 경우
+		// 한 줄이 완성됐다고 판단
+		if (x == GBOARD_WIDTH + 1)
+		{
+			// 해당 줄을 초기화
+			for (line = 0; y - line > 0; line++)
+				memcpy(&gameBoardInfo[y - line][1], &gameBoardInfo[(y - line) - 1][1], GBOARD_WIDTH * sizeof(int));
+			// 줄을 하나씩 아래로 내림
+			y += 1;
+			score += 10;	// 줄 제거 시 점수 획득
+		}
+	}
+	RedrawBlocks();
 }
 
 // 블록이 일정 수준 이상으로 올라오면 게임 종료
