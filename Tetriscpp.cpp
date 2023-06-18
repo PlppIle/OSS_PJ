@@ -134,31 +134,35 @@ void drawBoard()
 	}
 }
 
+// 블록끼리의 충돌을 판별
+int DetectCollision(int _x, int _y, char blockInfo[4][4])
+{
+	int x, y;
+	int arrX = (_x - GBOARD_ORIGIN_X) / 2;
+	int arrY = _y - GBOARD_ORIGIN_Y;
+
+	for (x = 0; x < 4; x++)
+	{
+		for (y = 0; y < 4; y++)
+		{
+			if (blockInfo[y][x] == 1 && gameBoardInfo[arrY + y][arrX + x] == 1)
+				return 0;
+		}
+	}
+
+	return 1;
+}
+
 // 블록을 왼쪽으로 움직임
 // 기호는 문자 2칸 차지 +-2
 void ShiftLeft()
 {
+	// 충돌 코드 추가
+	if (!DetectCollision(curPosX - 2, curPosY, blockModel[block_id]))
+		return;
+
 	deleteBlock(blockModel[block_id]);
 	curPosX -= 2;
-	SetCurrentCursorPos(curPosX, curPosY);
-	showBlock(blockModel[block_id]);
-}
-
-// 블록을 오른쪽으로 움직임
-void ShiftRight()
-{
-	deleteBlock(blockModel[block_id]);
-	curPosX += 2;
-	SetCurrentCursorPos(curPosX, curPosY);
-	showBlock(blockModel[block_id]);
-}
-
-
-// 일정 시간마다 블록으로 아래쪽으로 내림
-void BlockDown()
-{
-	deleteBlock(blockModel[block_id]);
-	curPosY += 1;
 	SetCurrentCursorPos(curPosX, curPosY);
 	showBlock(blockModel[block_id]);
 }
@@ -173,6 +177,21 @@ void ShiftRight()
 	curPosX += 2;
 	SetCurrentCursorPos(curPosX, curPosY);
 	showBlock(blockModel[block_id]);
+}
+
+
+// 일정 시간마다 블록으로 아래쪽으로 내림
+int BlockDown()
+{
+	if (!DetectCollision(curPosX, curPosY + 1, blockModel[block_id]))
+		return 0;
+
+	deleteBlock(blockModel[block_id]);
+	curPosY += 1;
+	SetCurrentCursorPos(curPosX, curPosY);
+	showBlock(blockModel[block_id]);
+
+	return 1;
 }
 
 // 키 입력을 받음
@@ -208,15 +227,27 @@ int main()
 
 	srand(time(NULL));
   
-  drawBoard();
+	while (1)
+	{
+		// 블록 랜덤 생성
+		block_id = rand() % 28;
+		curPosX = GBOARD_ORIGIN_X + 6;
+		curPosY = GBOARD_ORIGIN_Y;
 
-	// 釉붾줉 ?쒕뜡 ?앹꽦
-	block_id = rand() % 28;
-	curPosX = GBOARD_ORIGIN_X + 6;
-	curPosY = GBOARD_ORIGIN_Y;
+		drawBoard();
 
-	showBlock(blockModel[block_id]);
-	deleteBlock(blockModel[block_id]);
+		while (1)
+		{
+			showScore();
+
+			if (BlockDown() == 0)	// 테트리스에서 블록은 계속 내려옴
+			{
+				break;
+			}
+			ProcessKeyInput();	// 키보드 입력을 받음
+		}
+	}
+
 
 	return 0;
 }
