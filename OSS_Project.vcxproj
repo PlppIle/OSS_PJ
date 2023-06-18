@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Tetris.c" />
+    <ClInclude Include="blockModel.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="blockModel.h" />
+    <ClCompile Include="Tetriscpp.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
