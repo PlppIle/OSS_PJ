@@ -23,6 +23,7 @@
 int gameBoardInfo[GBOARD_HEIGHT + 1][GBOARD_WIDTH + 2];
 int curPosX, curPosY;	// 현재 커서 위치 저장 변수
 int block_id;			// 내려올 블록의 id
+int score = 0;			// 점수 추가
 
 // 현재 커서 위치 x, y로 변경
 void SetCurrentCursorPos(int x, int y)
@@ -288,13 +289,30 @@ void RemoveFillUpLine()
 	RedrawBlocks();
 }
 
+// 블록이 일정 수준 이상으로 올라오면 게임 종료
+int IsGameOver()
+{
+	if (!DetectCollision(curPosX, curPosY, blockModel[block_id]))
+		return 1;
+
+	return 0;
+}
+
+// 현재 점수를 보여주는 인터페이스
+void showScore()
+{
+	SetCurrentCursorPos(30, 10);
+	printf("Score : %d", score);
+	SetCurrentCursorPos(curPosX, curPosY);
+}
 
 // main
 int main()
 {
-
 	srand(time(NULL));
-  
+
+	RemoveCursor();
+
 	while (1)
 	{
 		// 블록 랜덤 생성
@@ -303,6 +321,13 @@ int main()
 		curPosY = GBOARD_ORIGIN_Y;
 
 		drawBoard();
+
+		if (IsGameOver())
+		{
+			SetCurrentCursorPos(8, 1);
+			printf("Game Over!!");
+			break;
+		}
 
 		while (1)
 		{
@@ -321,6 +346,7 @@ int main()
 		}
 	}
 
+	getchar();
 
 	return 0;
 }
