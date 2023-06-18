@@ -21,7 +21,6 @@
 
 // °ÔÀÓº¸µå
 int gameBoardInfo[GBOARD_HEIGHT + 1][GBOARD_WIDTH + 2];
-
 int curPosX, curPosY;	// ÇöÀç Ä¿¼­ À§Ä¡ ÀúÀå º¯¼ö
 int block_id;			// ³»·Á¿Ã ºí·ÏÀÇ id
 
@@ -46,6 +45,7 @@ COORD GetCurrentCursorPos()
 	return curPoint;
 }
 
+
 // ºí·ÏÀ» ±×¸²
 void showBlock(char blockInfo[4][4])
 {
@@ -59,14 +59,14 @@ void showBlock(char blockInfo[4][4])
 			// Ä¿¼­¸¦ ¿òÁ÷ÀÌ¸ç 4*4 °ø°£¿¡ ºí·ÏÀ» ±×¸²
 			SetCurrentCursorPos(pos.X + x * 2, pos.Y + y);
 			if (blockInfo[y][x] == 1)
-				printf("¡á");
+				printf("??);
 		}
 		SetCurrentCursorPos(pos.X, pos.Y);
 		// Ã³À½ Ä¿¼­ À§Ä¡·Î º¹±Í
 	}
 }
 
-// ºí·ÏÀ» Áö¿ò
+// ºí·ÏÀ» Áö¿ò€
 void deleteBlock(char blockInfo[4][4])
 {
 	COORD pos = GetCurrentCursorPos();
@@ -82,6 +82,55 @@ void deleteBlock(char blockInfo[4][4])
 		}
 		SetCurrentCursorPos(pos.X, pos.Y);
 		// Ã³À½ Ä¿¼­ À§Ä¡·Î º¹±Í
+
+// ½ÃÀÛ ½Ã °ÔÀÓº¸µå ÃÊ±âÈ­
+void gameBoardinit()
+{
+	// °ÔÀÓº¸µå Á¤º¸¸¦ 0À¸·Î ÃÊ±âÈ­
+	memset(gameBoardInfo, 0, sizeof(int));
+
+	// ¿Üº® Á¤º¸ 1·Î ÃÊ±âÈ­
+	for (int y = 0; y < GBOARD_HEIGHT; y++)
+	{
+		gameBoardInfo[y][0] = 1;
+		gameBoardInfo[y][GBOARD_WIDTH + 1] = 1;
+	}
+
+	for (int x = 0; x < GBOARD_WIDTH + 2; x++)
+		gameBoardInfo[GBOARD_HEIGHT][x] = 1;
+}
+
+// °ÔÀÓ º¸µå È­¸é¿¡ Ãâ·Â
+void drawBoard()
+{
+	int x, y;
+
+	// °ÔÀÓ ½ÃÀÛ ½Ã ÃÊ±âÈ­ÇÏ¸ç Ãâ·Â
+	gameBoardinit();
+
+	// 1ÀÎ ¿Üº® ºÎºÐÀ» ±×¸²
+	for (y = 0; y <= GBOARD_HEIGHT; y++)
+	{
+		SetCurrentCursorPos(GBOARD_ORIGIN_X, GBOARD_ORIGIN_Y + y);
+		if (y == GBOARD_HEIGHT)
+			printf("??);
+		else
+			printf("??);
+	}
+
+	for (x = 1; x <= GBOARD_WIDTH + 1; x++)
+	{
+		SetCurrentCursorPos(GBOARD_ORIGIN_X + (x * 2) - 1, GBOARD_ORIGIN_Y + GBOARD_HEIGHT);
+		printf("?€");
+	}
+
+	for (y = 0; y <= GBOARD_HEIGHT; y++)
+	{
+		SetCurrentCursorPos(GBOARD_ORIGIN_X + (GBOARD_WIDTH * 2) + 2, GBOARD_ORIGIN_Y + y);
+		if (y == GBOARD_HEIGHT)
+			printf("??);
+		else
+			printf("??);
 	}
 }
 
@@ -156,9 +205,12 @@ void ProcessKeyInput()
 // main
 int main()
 {
-	srand(time(NULL));
 
-	// ºí·Ï ·£´ý »ý¼º
+	srand(time(NULL));
+  
+  drawBoard();
+
+	// ë¸”ë¡ ?œë¤ ?ì„±
 	block_id = rand() % 28;
 	curPosX = GBOARD_ORIGIN_X + 6;
 	curPosY = GBOARD_ORIGIN_Y;
