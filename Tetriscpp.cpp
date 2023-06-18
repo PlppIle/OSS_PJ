@@ -12,13 +12,13 @@
 #define GBOARD_ORIGIN_Y 2
 #define GBOARD_ORIGIN_X 4
 
-// °ÔÀÓº¸µå
+// ê²Œì„ë³´ë“œ
 int gameBoardInfo[GBOARD_HEIGHT + 1][GBOARD_WIDTH + 2];
 
-int curPosX, curPosY;	// ÇöÀç Ä¿¼­ À§Ä¡ ÀúÀå º¯¼ö
-int block_id;			// ³»·Á¿Ã ºí·ÏÀÇ id
+int curPosX, curPosY;	// í˜„ì¬ ì»¤ì„œ ìœ„ì¹˜ ì €ì¥ ë³€ìˆ˜
+int block_id;			// ë‚´ë ¤ì˜¬ ë¸”ë¡ì˜ id
 
-// ÇöÀç Ä¿¼­ À§Ä¡ x, y·Î º¯°æ
+// í˜„ì¬ ì»¤ì„œ ìœ„ì¹˜ x, yë¡œ ë³€ê²½
 void SetCurrentCursorPos(int x, int y)
 {
 	COORD pos = { x, y };
@@ -26,7 +26,7 @@ void SetCurrentCursorPos(int x, int y)
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
 
-// ÇöÀç Ä¿¼­ À§Ä¡ ¹Ş¾Æ¿À±â
+// í˜„ì¬ ì»¤ì„œ ìœ„ì¹˜ ë°›ì•„ì˜¤ê¸°
 COORD GetCurrentCursorPos()
 {
 	CONSOLE_SCREEN_BUFFER_INFO	curInfo;
@@ -39,27 +39,28 @@ COORD GetCurrentCursorPos()
 	return curPoint;
 }
 
-// ºí·ÏÀ» ±×¸²
+
+// ë¸”ë¡ì„ ê·¸ë¦¼
 void showBlock(char blockInfo[4][4])
 {
-	// ÇöÀç Ä¿¼­ÀÇ À§Ä¡ ¹İÈ¯
+	// í˜„ì¬ ì»¤ì„œì˜ ìœ„ì¹˜ ë°˜í™˜
 	COORD pos = GetCurrentCursorPos();
 
 	for (int x = 0; x < 4; x++)
 	{
 		for (int y = 0; y < 4; y++)
 		{
-			// Ä¿¼­¸¦ ¿òÁ÷ÀÌ¸ç 4*4 °ø°£¿¡ ºí·ÏÀ» ±×¸²
+			// ì»¤ì„œë¥¼ ì›€ì§ì´ë©° 4*4 ê³µê°„ì— ë¸”ë¡ì„ ê·¸ë¦¼
 			SetCurrentCursorPos(pos.X + x * 2, pos.Y + y);
 			if (blockInfo[y][x] == 1)
-				printf("¡á");
+				printf("â– ");
 		}
 		SetCurrentCursorPos(pos.X, pos.Y);
-		// Ã³À½ Ä¿¼­ À§Ä¡·Î º¹±Í
+		// ì²˜ìŒ ì»¤ì„œ ìœ„ì¹˜ë¡œ ë³µê·€
 	}
 }
 
-// ºí·ÏÀ» Áö¿ò
+// ë¸”ë¡ì„ ì§€ì›€
 void deleteBlock(char blockInfo[4][4])
 {
 	COORD pos = GetCurrentCursorPos();
@@ -68,22 +69,74 @@ void deleteBlock(char blockInfo[4][4])
 	{
 		for (int y = 0; y < 4; y++)
 		{
-			// Ä¿¼­¸¦ ¿òÁ÷ÀÌ¸ç 4*4 °ø°£¿¡ ±×·È´ø ºí·ÏÀ» Áö¿ò
+			// ì»¤ì„œë¥¼ ì›€ì§ì´ë©° 4*4 ê³µê°„ì— ê·¸ë ¸ë˜ ë¸”ë¡ì„ ì§€ì›€
 			SetCurrentCursorPos(pos.X + x * 2, pos.Y + y);
 			if (blockInfo[y][x] == 1)
 				printf("  ");
 		}
 		SetCurrentCursorPos(pos.X, pos.Y);
-		// Ã³À½ Ä¿¼­ À§Ä¡·Î º¹±Í
+		// ì²˜ìŒ ì»¤ì„œ ìœ„ì¹˜ë¡œ ë³µê·€
+
+// ì‹œì‘ ì‹œ ê²Œì„ë³´ë“œ ì´ˆê¸°í™”
+void gameBoardinit()
+{
+	// ê²Œì„ë³´ë“œ ì •ë³´ë¥¼ 0ìœ¼ë¡œ ì´ˆê¸°í™”
+	memset(gameBoardInfo, 0, sizeof(int));
+
+	// ì™¸ë²½ ì •ë³´ 1ë¡œ ì´ˆê¸°í™”
+	for (int y = 0; y < GBOARD_HEIGHT; y++)
+	{
+		gameBoardInfo[y][0] = 1;
+		gameBoardInfo[y][GBOARD_WIDTH + 1] = 1;
+	}
+
+	for (int x = 0; x < GBOARD_WIDTH + 2; x++)
+		gameBoardInfo[GBOARD_HEIGHT][x] = 1;
+}
+
+// ê²Œì„ ë³´ë“œ í™”ë©´ì— ì¶œë ¥
+void drawBoard()
+{
+	int x, y;
+
+	// ê²Œì„ ì‹œì‘ ì‹œ ì´ˆê¸°í™”í•˜ë©° ì¶œë ¥
+	gameBoardinit();
+
+	// 1ì¸ ì™¸ë²½ ë¶€ë¶„ì„ ê·¸ë¦¼
+	for (y = 0; y <= GBOARD_HEIGHT; y++)
+	{
+		SetCurrentCursorPos(GBOARD_ORIGIN_X, GBOARD_ORIGIN_Y + y);
+		if (y == GBOARD_HEIGHT)
+			printf("â””");
+		else
+			printf("â”‚");
+	}
+
+	for (x = 1; x <= GBOARD_WIDTH + 1; x++)
+	{
+		SetCurrentCursorPos(GBOARD_ORIGIN_X + (x * 2) - 1, GBOARD_ORIGIN_Y + GBOARD_HEIGHT);
+		printf("â”€");
+	}
+
+	for (y = 0; y <= GBOARD_HEIGHT; y++)
+	{
+		SetCurrentCursorPos(GBOARD_ORIGIN_X + (GBOARD_WIDTH * 2) + 2, GBOARD_ORIGIN_Y + y);
+		if (y == GBOARD_HEIGHT)
+			printf("â”˜");
+		else
+			printf("â”‚");
 	}
 }
 
 // main
 int main()
 {
-	srand(time(NULL));
 
-	// ºí·Ï ·£´ı »ı¼º
+	srand(time(NULL));
+  
+  drawBoard();
+
+	// ë¸”ë¡ ëœë¤ ìƒì„±
 	block_id = rand() % 28;
 	curPosX = GBOARD_ORIGIN_X + 6;
 	curPosY = GBOARD_ORIGIN_Y;
